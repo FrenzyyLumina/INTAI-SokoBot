@@ -44,7 +44,9 @@ class SokoBot:
         return bricks, targets, cat, frozenset(crates)
 
     @staticmethod
-    def nextLegalMoves(cat, crates, bricks) : 
+    def nextLegalMoves(cat, crates, bricks) :
+
+        # @xibcera, @mjbee, add board boundary checks for both nextCell and vacant.
         nextMoves = [] # We are defining an empty list to get the possible next moves we find.
 
         # for loop will go through every considerable list of moves.
@@ -146,18 +148,43 @@ class SokoBot:
         pending = True
 
         while pending:
+            # make sure solution is executed before deadline
+            start_time = time.time()
+            deadline = start_time + 13.0 
+
+            if time.time() >= deadline:
+                return ""
+            
             while f_min not in listOfEntries or not listOfEntries[f_min]:
                 listOfEntries.pop(f_min, None)
                 f_min += 1
+
             
+            go, nodeid, pl, cs = listOfEntries[f_min].pop(0)
+            pending -= 1
 
+            parent, pushes = expand(pl, cs)
+            key = (cs, min(parent))
+            if key in closed:
+                continue
+            closed.add(key)
 
-        # YOU NEED TO REWRITE THE IMPLEMENTATION OF THIS METHOD TO MAKE THE BOT SMARTER
-        # Default stupid behavior: Think (sleep) for 3 seconds, and then return a
-        # sequence
-        # that just moves left and right repeatedly.
-        try:
-            time.sleep(3)
-        except Exception as ex:
-            print(ex)
-        return "lrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlrlr"
+            if self.goalAchieved(cs, targets):
+                out = []
+                while nodes[nodeid][0] is not None:
+                    nodeid = nodes[nodeid][0]
+                    out.append(nodes[nodeid][1])
+                return ''.join(reversed(out))
+
+            for stand, move, newCat, newCrates in pushes:
+                dr, dc, = Directions[move]
+                dest = (newCat[0] + dr, newCat[1] + dc)
+                if dest not in dist:
+                    continue
+                nodes.append((nodeid, movePath(parent, stand) + move))
+                nf = go + 1 + heuristic(newCrates)
+                listOfEntries.setdefault(nf, []).append((nf, len(nodes) - 1, newCat, newCrates))
+                pending += 1
+                if nf < f_min:
+                    f_min = nf
+        return ""
