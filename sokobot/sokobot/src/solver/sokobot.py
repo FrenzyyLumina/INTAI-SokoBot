@@ -95,6 +95,24 @@ class SokoBot:
         if cat is None or self.goalAchieved(crates, targets): 
             return ""
 
+        inside = lambda p: 0 <= p[0] < height and 0 <= p[1] < width
+
+        dist = {t: 0 for t in targets}
+
+        q = list(targets)
+        i = 0
+        while i < len(q):
+            cell = q[i]
+            i += 1
+            for dr, dc in Directions.values():
+                prev = (cell[0] - dr, cell[1] - dc)
+                stand = (prev[0] - dr, prev[1] - dc)
+                if(inside(prev) and inside(stand)) and prev not in bricks and stand not in bricks and prev not in dist:
+                    dist[prev] = dist[cell] + 1
+                    q.append(prev)
+
+        def heuristic(cs):
+            return sum(dist[c] for c in cs)
         
 
         # YOU NEED TO REWRITE THE IMPLEMENTATION OF THIS METHOD TO MAKE THE BOT SMARTER
