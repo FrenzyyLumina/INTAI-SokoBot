@@ -122,13 +122,13 @@ class SokoBot:
             while j < len(beg):
                 pu = beg[j]
                 j += 1
-                for move, nxt, newCrates, in self.nextLegalMoves(pu, cs, bricks):
-                    if nxt not in parent:
-                        parent[nxt] = (pu, move)
-                        beg.append(nxt)
+                for move, nxt, newCrates, in self.nextLegalMoves(pu, cs, bricks, width, height):
+                    if newCrates == cs:
+                        if nxt not in parent:
+                            parent[nxt] = (pu, move)
+                            beg.append(nxt)
                     else:
-                        pushes.append((pu, move, nxt, newCrates))
-            
+                        pushes.append((pu, move, nxt, newCrates))         
             return parent, pushes
 
         def movePath(parent, target):
