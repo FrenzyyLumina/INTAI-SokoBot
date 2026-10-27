@@ -113,7 +113,44 @@ class SokoBot:
 
         def heuristic(cs):
             return sum(dist[c] for c in cs)
-        
+
+        def expand(start, cs):
+            parent = {start: None}
+            pushes = []
+            beg = [start]
+            j = 0
+            while j < len(beg):
+                pu = beg[j]
+                j += 1
+                for move, nxt, newCrates, in self.nextLegalMoves(pu, cs, bricks):
+                    if nxt not in parent:
+                        parent[nxt] = (pu, move)
+                        beg.append(nxt)
+                    else:
+                        pushes.append((pu, move, nxt, newCrates))
+            
+            return parent, pushes
+
+        def movePath(parent, target):
+            out = []
+            while parent[target] is not None:
+                target, mov = parent[target]
+                out.append(mov)
+            return ''.join(reversed(out))
+
+        nodes = [(None, "")]
+        closed = set()
+        listOfEntries = {}
+        listOfEntries.setdefault(heuristic(crates), []).append((0,0, cat, crates))
+        f_min = h(crates)
+        pending = True
+
+        while pending:
+            while f_min not in listOfEntries or not listOfEntries[f_min]:
+                listOfEntries.pop(f_min, None)
+                f_min += 1
+            
+
 
         # YOU NEED TO REWRITE THE IMPLEMENTATION OF THIS METHOD TO MAKE THE BOT SMARTER
         # Default stupid behavior: Think (sleep) for 3 seconds, and then return a
