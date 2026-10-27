@@ -2,7 +2,101 @@ import time
 
 
 class SokoBot:
+
+    Directions = { # Directions serves as a directory, and each direction (up, down, left, right) is connected to how the plane (r, c) changes and moves.
+    'u': (-1, 0), # UP; (row - 1)
+    'd': (1, 0), # DOWN; (row + 1)
+    'l': (0, -1), # LEFT; (column - 1)
+    'r': (0, 1), # RIGHT; (column + 1)
+    } 
+
+    @staticmethod
+    def attributesOfLevel(width, height, mapData, itemsData): # function that reads the entire map, after reading it will return its attributes (e.g. bricks, targets, cats, and crates.)
+    
+        # set() will hold the rows and columns (row, column) of the attributes for the entire map.
+        bricks = set() 
+        targets = set() 
+        crates = set() 
+
+        # set to none, cat/player is not found yet, will become one and will also read (row, column)
+        cat = None 
+
+        # Nested loop to go through every row and column number.
+        for r in range(height): 
+            for c in range(width): 
+
+                # @block used to know the attribute within the current cell, stores into 'block' after reading from mapData.
+                block = mapData[r][c] 
+
+                # checks if block is a wall ('#'), if block is a target ('.'), adds their corresponding attribute and sets it to the position.
+                if block == '#': bricks.add((r, c)) 
+                elif block == '.': targets.add((r, c))
+                
+                # @item reads itemsData and storing the attributes into the 'item' variable.
+                item = itemsData[r][c] 
+
+                # checks if item is a cat ('@'), if block is a crate ('$'), adds their corresponding attribute and sets it to the position.
+                if item == '@': cat = (r, c) 
+                elif item == '$': crates.add((r, c)) 
+
+        # return the values obtained and sends them to their respected positions.
+        # @frozenset() variable can't be changed once it's made
+        return bricks, targets, cat, frozenset(crates)
+
+    @staticmethod
+    def nextLegalMoves(cat, crates, bricks) : 
+        nextMoves = [] # We are defining an empty list to get the possible next moves we find.
+
+        # for loop will go through every considerable list of moves.
+        for move, (dr, dc) in SokoBot.Directions.items():   
+
+            # line adds difference/change of the cat/player's current position
+            nextCell = (cat[0] + dr, cat[1] + dc) # This line now adds the difference/change of the cat's position to be able to get the cell next to it. Checks the positions of the cat
+            # Example: let's say the cat is at cell (1, 2) and it wants to move a cell up. What the line above does is it adds the change of position to (1, 2).
+            
+            if nextCell in bricks: # If statement that checks if the next cell is a brick wall
+                
+                continue # if  wall, then skip cell and go to the next cell.
+
+            # if statement to check if there is a crate in the next cell
+            if nextCell in crates: 
+                vacant = (nextCell[0] + dr, nextCell[1] + dc) 
+
+                # @vacant, this is to check if there is a vancant cell behind the crate
+                # if there is a crate or a brick, then the crate can't be pushed or moved anymore and we skip it
+                if vacant in bricks or vacant in crates: 
+                    continue 
+
+                # initialize "newCrates", the board has to describe the result  after pushing a specific crate
+                newCrates = (crates - {nextCell}) | {vacant}
+
+                nextMoves.append((move, nextCell, newCrates)) # Now, it saves all of the variables, like: the letter, the cat's new position, and the changes as to where the crates are.
+            
+            # else statement, if not a brick, crate, it is an empty cell or a target
+            else: 
+                nextMoves.append((move, nextCell, crates)) # Just save the walk with nothing changing
+
+        return nextMoves # After 4 directions are done, returns and send back the entire list
+
+    # @goalAchieved simply checks if all crates are sitting on their respective targets, and the goal is achieved.
+    # Requirements: frozenset crates, targets; Function checks if all crates are in their respective targets; if so, goal is achieved.
+    @staticmethod
+    def goalAchieved(crates, targets):
+
+        # @issubset() function does is check if all of the crate's positions are one of the targets. returns true or false
+        return crates.issubset(targets) 
+    
+
     def solveSokobanPuzzle(self, width, height, mapData, itemsData):
+        Directions = self.Directions
+
+        bricks, targets, cat, crates = self.attributesOfLevel(width, height, mapData, itemsData)
+
+        if cat is None or self.goalAchieved(crates, targets): 
+            return ""
+
+        
+
         # YOU NEED TO REWRITE THE IMPLEMENTATION OF THIS METHOD TO MAKE THE BOT SMARTER
         # Default stupid behavior: Think (sleep) for 3 seconds, and then return a
         # sequence
