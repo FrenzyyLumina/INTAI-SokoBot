@@ -142,7 +142,7 @@ class SokoBot:
         closed = set()
         listOfEntries = {}
         listOfEntries.setdefault(heuristic(crates), []).append((0,0, cat, crates))
-        f_min = h(crates)
+        f_min = heuristic(crates)
         pending = True
 
         while pending:
