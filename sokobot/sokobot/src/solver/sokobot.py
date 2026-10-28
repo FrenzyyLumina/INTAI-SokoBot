@@ -187,9 +187,13 @@ class SokoBot:
                 if dest not in dist:
                     continue
                 nodes.append((nodeid, movePath(parent, stand) + move))
-                nf = go + 1 + heuristic(newCrates)
-                listOfEntries.setdefault(nf, []).append((nf, len(nodes) - 1, newCat, newCrates))
+                new_g = go + 1
+                new_f = new_g + heuristic(newCrates)
+
+                listOfEntries.setdefault(new_f, []).append(
+                    (new_g, len(nodes) - 1, newCat, newCrates)
+                )
                 pending += 1
-                if nf < f_min:
-                    f_min = nf
+                if new_f < f_min:
+                    f_min = new_f
         return ""
