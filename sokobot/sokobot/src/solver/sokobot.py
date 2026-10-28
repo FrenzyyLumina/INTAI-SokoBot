@@ -177,8 +177,8 @@ class SokoBot:
             if self.goalAchieved(cs, targets):
                 out = []
                 while nodes[nodeid][0] is not None:
-                    nodeid = nodes[nodeid][0]
                     out.append(nodes[nodeid][1])
+                    nodeid = nodes[nodeid][0]
                 return ''.join(reversed(out))
 
             for stand, move, newCat, newCrates in pushes:
