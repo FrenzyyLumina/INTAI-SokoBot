@@ -44,13 +44,18 @@ class SokoBot:
         return bricks, targets, cat, frozenset(crates)
 
     @staticmethod
-    def nextLegalMoves(cat, crates, bricks) :
+    def nextLegalMoves(cat, crates, bricks, width, height) :
 
         # @xibcera, @mjbee, add board boundary checks for both nextCell and vacant.
         nextMoves = [] # We are defining an empty list to get the possible next moves we find.
 
         # for loop will go through every considerable list of moves.
         for move, (dr, dc) in SokoBot.Directions.items():   
+            
+            # Check if the next cell is within the bounds of the board
+            nextCell = (cat[0] + dr, cat[1] + dc)
+            if nextCell[0] < 0 or nextCell[0] >= height or nextCell[1] < 0 or nextCell[1] >= width:
+                continue
 
             # line adds difference/change of the cat/player's current position
             nextCell = (cat[0] + dr, cat[1] + dc) # This line now adds the difference/change of the cat's position to be able to get the cell next to it. Checks the positions of the cat
