@@ -56,10 +56,6 @@ class SokoBot:
             nextCell = (cat[0] + dr, cat[1] + dc)
             if nextCell[0] < 0 or nextCell[0] >= height or nextCell[1] < 0 or nextCell[1] >= width:
                 continue
-
-            # line adds difference/change of the cat/player's current position
-            nextCell = (cat[0] + dr, cat[1] + dc) # This line now adds the difference/change of the cat's position to be able to get the cell next to it. Checks the positions of the cat
-            # Example: let's say the cat is at cell (1, 2) and it wants to move a cell up. What the line above does is it adds the change of position to (1, 2).
             
             if nextCell in bricks: # If statement that checks if the next cell is a brick wall
                 
@@ -68,6 +64,9 @@ class SokoBot:
             # if statement to check if there is a crate in the next cell
             if nextCell in crates: 
                 vacant = (nextCell[0] + dr, nextCell[1] + dc) 
+
+                if not (0<= vacant[0] < height and 0 <= vacant[1] < width):
+                    continue
 
                 # @vacant, this is to check if there is a vancant cell behind the crate
                 # if there is a crate or a brick, then the crate can't be pushed or moved anymore and we skip it
@@ -101,6 +100,9 @@ class SokoBot:
 
         if cat is None or self.goalAchieved(crates, targets): 
             return ""
+
+        start_time = time.time()
+        deadline = start_time + 13.0 
 
         inside = lambda p: 0 <= p[0] < height and 0 <= p[1] < width
 
@@ -152,11 +154,9 @@ class SokoBot:
         f_min = heuristic(crates)
         pending = True
 
+
         while pending:
             # make sure solution is executed before deadline
-            start_time = time.time()
-            deadline = start_time + 13.0 
-
             if time.time() >= deadline:
                 return ""
             
